@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,14 +43,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.astro.test.akhmadghafirin.R
+import com.astro.test.akhmadghafirin.data.model.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserScreen() {
+fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
     val searchQuery = remember { mutableStateOf(TextFieldValue()) }
-    val listItems = 1..100
     val focusManager = LocalFocusManager.current
     Scaffold(
         topBar = {
@@ -87,31 +89,45 @@ fun UserScreen() {
                     disabledIndicatorColor = Color.Transparent
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() })
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        focusManager.clearFocus()
+                        viewModel.searchUsers(searchQuery.value.text)
+                    }
+                )
             )
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(listItems.count()) { index ->
-                        UserItem(name = index.toString())
+                if (viewModel.isLoading.value) CircularProgressIndicator()
+                else {
+                    if (viewModel.error.value.isNotEmpty()) {
+                        Text(text = viewModel.error.value, fontSize = 30.sp)
+                    } else {
+                        if (viewModel.searchResult.value.isEmpty()) {
+                            Text(text = "Not Found!", fontSize = 30.sp)
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(top = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                items(viewModel.searchResult.value) { user ->
+                                    UserItem(user = user)
+                                }
+                            }
+                        }
                     }
                 }
-                CircularProgressIndicator()
-                Text(text = "Not Found!", fontSize = 30.sp)
             }
         }
     }
 }
 
 @Composable
-fun UserItem(name: String) {
+fun UserItem(user: User) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
@@ -123,7 +139,7 @@ fun UserItem(name: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = "https://avatars.githubusercontent.com/u/16438063?v=4",
+                model = user.avatarUrl,
                 modifier = Modifier
                     .size(width = 60.dp, height = 60.dp)
                     .clip(CircleShape),
@@ -134,8 +150,8 @@ fun UserItem(name: String) {
             Column(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                Text(text = "Name $name", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(text = "Username $name", fontWeight = FontWeight.Thin)
+                Text(text = user.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = user.login, fontWeight = FontWeight.Thin)
             }
         }
     }

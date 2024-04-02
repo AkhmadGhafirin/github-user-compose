@@ -1,6 +1,7 @@
 package com.astro.test.akhmadghafirin.di
 
 import com.astro.test.akhmadghafirin.BuildConfig
+import com.astro.test.akhmadghafirin.data.api.ApiService
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -34,11 +35,12 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideApiService(okHttpClient: OkHttpClient): ApiService {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .build()
+            .create(ApiService::class.java)
     }
 }

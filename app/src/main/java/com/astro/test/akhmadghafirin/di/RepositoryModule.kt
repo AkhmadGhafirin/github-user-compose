@@ -14,7 +14,7 @@ import retrofit2.Retrofit
 object RepositoryModule {
 
     @Provides
-    fun provideRepositoryImpl(retrofit: Retrofit): Repository {
-        return RepositoryImpl(retrofit.create(ApiService::class.java))
+    fun provideRepositoryImpl(apiService: ApiService): Repository {
+        return RepositoryImpl(apiService)
     }
 }
