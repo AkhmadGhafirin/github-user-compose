@@ -105,7 +105,7 @@ fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
                     if (viewModel.error.value.isNotEmpty()) {
                         Text(text = viewModel.error.value, fontSize = 30.sp)
                     } else {
-                        if (viewModel.searchResult.value.isEmpty()) {
+                        if (viewModel.searchResult.value.isEmpty() && !viewModel.isFirstGenerate.value) {
                             Text(text = "Not Found!", fontSize = 30.sp)
                         } else {
                             LazyColumn(
@@ -150,7 +150,11 @@ fun UserItem(user: User) {
             Column(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                Text(text = user.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = user.name.ifEmpty { "-" },
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Text(text = user.login, fontWeight = FontWeight.Thin)
             }
         }

@@ -2,6 +2,7 @@ package com.astro.test.akhmadghafirin.data.repository
 
 import com.astro.test.akhmadghafirin.data.api.ApiService
 import com.astro.test.akhmadghafirin.data.model.User
+import com.astro.test.akhmadghafirin.data.model.mapper.Mapper.emptyUser
 import com.astro.test.akhmadghafirin.data.model.mapper.Mapper.toModel
 import com.astro.test.akhmadghafirin.data.response.Result
 import com.astro.test.akhmadghafirin.util.ExceptionUtil.toException
@@ -15,6 +16,19 @@ class RepositoryImpl @Inject constructor(
             val request = apiService.searchUsers(5, query)
             if (request.isSuccessful) {
                 Result.Success(request.body()?.items?.map { it.toModel() } ?: listOf())
+            } else {
+                Result.Error(request.errorBody().toException())
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun user(username: String): Result<User> {
+        return try {
+            val request = apiService.user(username)
+            if (request.isSuccessful) {
+                Result.Success(request.body()?.toModel() ?: emptyUser())
             } else {
                 Result.Error(request.errorBody().toException())
             }

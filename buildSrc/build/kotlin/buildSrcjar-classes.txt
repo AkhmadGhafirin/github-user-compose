@@ -1,0 +1,1 @@
+C:\Users\AkhmadGhafirin\Developments\AndroidStudioProjects\github-user-compose\buildSrc\build\classes\kotlin\main\Dependencies.class
