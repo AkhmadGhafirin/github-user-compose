@@ -1,6 +1,7 @@
 package com.astro.test.akhmadghafirin.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,10 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -45,6 +50,7 @@ import com.astro.test.akhmadghafirin.R
 fun UserScreen() {
     val searchQuery = remember { mutableStateOf(TextFieldValue()) }
     val listItems = 1..100
+    val focusManager = LocalFocusManager.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -80,17 +86,25 @@ fun UserScreen() {
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent
                 ),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() })
             )
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                items(listItems.count()) { index ->
-                    UserItem(name = index.toString())
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(listItems.count()) { index ->
+                        UserItem(name = index.toString())
+                    }
                 }
+                CircularProgressIndicator()
+                Text(text = "Not Found!", fontSize = 30.sp)
             }
         }
     }
@@ -113,7 +127,9 @@ fun UserItem(name: String) {
                 modifier = Modifier
                     .size(width = 60.dp, height = 60.dp)
                     .clip(CircleShape),
-                contentDescription = null
+                contentDescription = null,
+                placeholder = painterResource(id = R.drawable.baseline_person_24),
+                error = painterResource(id = R.drawable.baseline_person_24)
             )
             Column(
                 modifier = Modifier.padding(horizontal = 8.dp)
